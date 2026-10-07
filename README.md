@@ -29,3 +29,22 @@ npm run dev
 ```
 
 Open http://localhost:5173.
+
+## Run in the Base44 sandbox
+
+```sh
+docker compose -f docker-compose.base44.yml up -d --build
+```
+
+This is the dev-environment compose: both services run their reloading dev servers
+from the bind-mounted source, so code edits show up without a rebuild. The Vite dev
+server is published on host port **3000** (the preview entry point) and proxies `/api`
+to the FastAPI service on the compose network, so there is a single origin and no CORS
+setup is needed. `docker-compose.base44.yml` is for local/sandbox development only and
+does not change how the apps run in production.
+
+One sandbox-only override lives in the code: because the preview reaches the dev server
+through a rotating sandbox hostname, `apps/web/vite.config.ts` adds
+`.${BASE44_SANDBOX_HOST_DOMAIN}` to Vite's `server.allowedHosts` when
+`BASE44_PREVIEW_MODE=1`. With that flag unset the config is unchanged from the local-dev
+behavior above.
